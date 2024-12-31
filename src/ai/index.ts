@@ -1,5 +1,6 @@
 import {initTransformersEnv} from './config';
 import {pipeline, type TextGenerationPipeline} from '@huggingface/transformers';
+import {hasWebGPU} from './util';
 
 /** 模型 */
 class Model {
@@ -8,7 +9,15 @@ class Model {
 
     async init() {
         initTransformersEnv();
-        this.pipe = await pipeline('text-generation', 'qwen');
+
+        try {
+            this.pipe = await pipeline('text-generation', 'qwen', {
+                ...(await hasWebGPU() ? {device: 'webgpu', dtype: 'q8'} : {}),
+            });
+        }
+        catch (error) {
+            console.error('初始化模型失败', error);
+        }
     }
 
     async chat(prompt: string) {
@@ -25,6 +34,8 @@ class Model {
             tokenize: false,
             add_generation_prompt: true,
         });
+
+        console.log('模版输入', text);
 
         // @ts-ignore
         const result = await this.pipe(text, {

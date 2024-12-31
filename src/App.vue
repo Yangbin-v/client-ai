@@ -1,27 +1,26 @@
 <template>
     <div id="app">
-        <hello-world/>
+        <div>{{ question }}</div>
         <div>{{ message }}</div>
     </div>
 </template>
 
 <script lang="ts">
 import {defineComponent} from '@vue/composition-api';
-import HelloWorld from './components/HelloWorld.vue';
 import AI from '@/ai';
 export default defineComponent({
     name: 'App',
     data() {
         return {
+            question: '给我生成一个小学数学题',
             message: '...',
         };
     },
-    components: {
-        HelloWorld,
-    },
-    async mounted() {
-        const result = await AI.chat('你是谁?介绍一下自己');
-        this.message = JSON.stringify(result);
+    components: {},
+    mounted() {
+        AI.chat(this.question).then(result => {
+            this.message = JSON.stringify(result);
+        });
     },
 });
 </script>

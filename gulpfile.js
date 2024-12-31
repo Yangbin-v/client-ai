@@ -7,15 +7,17 @@ require('dotenv').config({path: '.env'});
 
 const HF_AUTH_TOKEN = process.env.HF_AUTH_TOKEN;
 const MODEL_SIZE = process.env.MODEL_SIZE;
+const USE_MIRROR = process.env.USE_MIRROR;
+const USE_WEBGPU = process.env.USE_WEBGPU;
 // Hugging Face 的基础 URL
-const BASE_URL = 'https://huggingface.co';
+const BASE_URL = USE_MIRROR ? 'https://hf-mirror.com' : 'https://huggingface.co';
 
 // 下载文件的任务
 async function downloadFile(url, dest) {
     // 在每次调用时导入 fetch
     const {default: fetch} = await import('node-fetch');
     const headers = HF_AUTH_TOKEN ? {Authorization: `Bearer ${HF_AUTH_TOKEN}`} : {};
-    const response = await fetch(url, {headers});
+    const response = await fetch(url, {headers, timeout: 1000 * 60 * 60});
 
     if (!response.ok) {
         throw new Error(`Failed to download ${url}: ${response.statusText}`);
@@ -46,29 +48,33 @@ gulp.task('fetch-model', async () => {
         'onnx/model_quantized.onnx',
     ];
 
+    if (USE_WEBGPU) {
+        files.push('onnx/model_fp16.onnx');
+    }
+
     if (!fs.existsSync(destDir)) {
         fs.mkdirSync(destDir, {recursive: true});
         fs.mkdirSync(path.join(destDir, 'onnx'), {recursive: true});
     }
 
-    const spinner = ora('Downloading model files').start();
+    const spinner = ora('Downloading model files\n').start();
 
     // 并行下载文件
     const downloadPromises = files.map(async (file, index) => {
         const url = `${BASE_URL}/${modelName}/resolve/main/${file}`;
         const destPath = path.join(destDir, file);
-        const fileSpinner = ora(`Downloading ${file}...`).start();
+        const fileSpinner = ora(`Downloading ${file}...\n`).start();
 
         try {
             await downloadFile(url, destPath);
-            fileSpinner.succeed(`Downloaded: ${file}`);
+            fileSpinner.succeed(`Downloaded: ${file}\n`);
         }
         catch (error) {
-            fileSpinner.fail(`Failed to download ${file}: ${error.message}`);
+            fileSpinner.fail(`Failed to download ${file}: ${error.message}\n`);
         }
     });
 
     await Promise.all(downloadPromises);
 
-    spinner.succeed('Download completed');
+    spinner.succeed('Download completed\n');
 });

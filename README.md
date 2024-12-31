@@ -10,6 +10,18 @@
 cp .env.example .env
 ```
 
+```env
+# HuggingFace Access Token，用来下载模型
+HF_AUTH_TOKEN=xxxxxxxxxxxx
+
+# Model Size，模型大小，0.5和1.5B的模型
+MODEL_SIZE=0.5
+
+# 下载模型需要代理，如果没有VPN，是否使用镜像
+# USE_MIRROR=1
+
+```
+
 ### 启动
 
 ```sh

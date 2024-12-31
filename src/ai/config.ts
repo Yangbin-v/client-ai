@@ -9,7 +9,9 @@ export const initTransformersEnv = () => {
     env.allowRemoteModels = false;
     env.allowLocalModels = true;
     env.localModelPath = './model';
+    if (env.backends.onnx.wasm) {
+        env.backends.onnx.wasm.wasmPaths = './wasm/';
+    }
 };
 
 export type ModelConfig = typeof modelConfig;
-
