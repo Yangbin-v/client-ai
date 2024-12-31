@@ -1,0 +1,50 @@
+{
+    "name": "oh-my-clone",
+    "version": "0.0.1",
+    "description": "端侧AI的实践",
+    "repository": {
+        "type": "git",
+        "url": ""
+    },
+    "author": "yangbin-v",
+    "scripts": {
+        "serve": "vue-cli-service serve",
+        "build": "vue-cli-service build",
+        "lint": "vue-cli-service lint --no-fix; stylelint src/**/*.{vue,css,less}",
+        "lint:fix": "vue-cli-service lint; stylelint --fix src/**/*.{vue,css,less}",
+        "bootstrap": "npm install && gulp fetch-model"
+    },
+    "dependencies": {
+        "@huggingface/transformers": "^3.2.4",
+        "core-js": "^3.8.3",
+        "onnxruntime-web": "^1.20.1",
+        "path-browserify": "^1.0.1",
+        "vue": "^2.6.14"
+    },
+    "devDependencies": {
+        "@babel/eslint-parser": "^7.15.0",
+        "@babel/eslint-plugin": "^7.14.5",
+        "@ecomfe/eslint-config": "^7.2.0",
+        "@ecomfe/stylelint-config": "^1.1.1",
+        "@typescript-eslint/eslint-plugin": "^4.29.0",
+        "@typescript-eslint/parser": "^4.29.0",
+        "@vue/cli-plugin-babel": "~5.0.0-beta.2",
+        "@vue/cli-plugin-eslint": "~5.0.0-beta.2",
+        "@vue/cli-plugin-typescript": "~5.0.0-beta.2",
+        "@vue/cli-service": "~5.0.0-beta.2",
+        "@vue/composition-api": "^1.0.5",
+        "@vue/eslint-config-typescript": "^7.0.0",
+        "dotenv": "^16.4.7",
+        "eslint": "^7.32.0",
+        "eslint-plugin-vue": "^7.15.1",
+        "gulp": "^5.0.0",
+        "husky": "^4.3.8",
+        "less": "^4.1.1",
+        "less-loader": "^10.0.1",
+        "lint-staged": "^11.1.2",
+        "node-fetch": "^3.3.2",
+        "stylelint": "^13.13.1",
+        "typescript": "^4.3.5",
+        "vue-template-compiler": "2.6.14"
+    }
+}
