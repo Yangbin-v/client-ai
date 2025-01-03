@@ -1,55 +1,21 @@
 <template>
-    <div id="app">
-        <div>{{ question }}</div>
-        <div>{{ message }}</div>
-    </div>
+    <router-view />
 </template>
 
 <script lang="ts">
-import {defineComponent} from '@vue/composition-api';
-import AI from '@/ai';
+import {defineComponent} from 'vue';
+import {RouterView} from 'vue-router';
+
 export default defineComponent({
-    name: 'App',
-    data() {
-        return {
-            question: '给我生成一个小学数学题',
-            message: '...',
-        };
-    },
-    components: {},
-    mounted() {
-        AI.chat(this.question).then(result => {
-            this.message = JSON.stringify(result);
-        });
-    },
+    components: {
+        'router-view': RouterView
+    }
 });
 </script>
 
-<style lang="less">
-body {
-    margin: 0;
-}
-
+<style scoped>
 #app {
-    font-family:
-        -apple-system,
-        BlinkMacSystemFont,
-        "Segoe UI",
-        Roboto,
-        "Helvetica Neue",
-        Arial,
-        "PingFang SC",
-        "Hiragino Sans GB",
-        "Microsoft YaHei",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    text-align: center;
-    color: #2c3e50;
-    margin-top: 80px;
-}
-
-.logo {
-    margin-bottom: 30px;
+    width: 100vw;
+    height: 100vh;
 }
 </style>

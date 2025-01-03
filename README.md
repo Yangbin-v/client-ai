@@ -26,7 +26,7 @@ MODEL_SIZE=0.5
 
 ```sh
 npm run bootstrap
-npm run serve
+npm run dev
 ```
 
 ### 构建

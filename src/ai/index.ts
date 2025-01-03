@@ -1,19 +1,16 @@
-import {initTransformersEnv} from './config';
 import {pipeline, type TextGenerationPipeline} from '@huggingface/transformers';
-import {hasWebGPU} from './util';
+// import {hasWebGPU} from './util';
 
 /** 模型 */
 class Model {
-    // @ts-ignore
+    // @ts-expect-error TextGenerationPipeline 允许缺省
     private pipe: TextGenerationPipeline;
 
     async init() {
-        initTransformersEnv();
-
         try {
-            this.pipe = await pipeline('text-generation', 'qwen', {
-                ...(await hasWebGPU() ? {device: 'webgpu', dtype: 'q8'} : {}),
-            });
+            this.pipe = await pipeline('text-generation', 'HuggingFaceTB/SmolLM2-135M-Instruct',
+                {dtype: 'fp16'}
+            );
         }
         catch (error) {
             console.error('初始化模型失败', error);
@@ -35,9 +32,7 @@ class Model {
             add_generation_prompt: true,
         });
 
-        console.log('模版输入', text);
-
-        // @ts-ignore
+        // @ts-expect-error TextGenerationPipeline 允许缺省
         const result = await this.pipe(text, {
             max_new_tokens: 100,
             return_full_text: false,

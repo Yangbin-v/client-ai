@@ -1,8 +1,14 @@
-import Vue from 'vue';
-import VueCompositionAPI, {createApp} from '@vue/composition-api';
+import './assets/main.css';
 
-import App from './App.vue';
-Vue.use(VueCompositionAPI);
-Vue.config.productionTip = false;
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
+import {createApp} from 'vue';
+import App from './app.vue';
+import router from './router';
 
-createApp(App).mount('#app');
+const app = createApp(App);
+
+app.use(router);
+app.use(ElementPlus);
+
+app.mount('#app');

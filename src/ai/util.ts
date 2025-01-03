@@ -1,10 +1,11 @@
 let hasWebGPUFlag: boolean | null = null;
 
-export const hasWebGPU = async () => {
+/** 是否支持 WebGPU */
+export const hasWebGPU = async() => {
     if (hasWebGPUFlag === null) {
-        // @ts-ignore
+        // @ts-expect-error WebGPU API 类型尚未完全支持
         if (navigator.gpu) {
-            // @ts-ignore
+            // @ts-expect-error WebGPU API 类型尚未完全支持
             const adapter = await navigator.gpu.requestAdapter();
             if (adapter.features.has('shader-f16')) {
                 hasWebGPUFlag = true;
