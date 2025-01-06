@@ -3,6 +3,7 @@ node_modules
 /dist
 /src/ai/model
 *.onnx
+.husky
 
 # local env files
 .env
