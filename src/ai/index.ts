@@ -1,5 +1,5 @@
 import * as ort from 'onnxruntime-web';
-import {getModelInput} from './util';
+import {getModelInput, decodeOutput} from './util';
 
 ort.env.wasm.wasmPaths = '/';  // WASM 文件在 public 目录下
 
@@ -21,9 +21,14 @@ class Model {
 
         const inputData = await getModelInput(prompt);
 
-        const result = await this.session.run(inputData);
+        const outputs = await this.session.run(inputData);
+        console.log('outputs', outputs);
 
-        return result;
+        // @ts-ignore
+        const text = await decodeOutput(outputs);
+        console.log('生成的文本:', text);
+
+        return text;
     }
 }
 
