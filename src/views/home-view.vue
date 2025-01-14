@@ -14,7 +14,12 @@
         </div>
         <div class="home-view-plugin">
             <el-collapse v-model="activeName" accordion>
-                <el-collapse-item v-for="item in plugins" :title="item.name" :name="item.id">
+                <el-collapse-item
+                    v-for="item in plugins"
+                    :title="item.name"
+                    :name="item.id"
+                    :key="item.id"
+                >
                     <div>{{item.name}} - {{item.description}}</div>
                 </el-collapse-item>
             </el-collapse>
@@ -24,14 +29,13 @@
 
 <script lang="ts">
 import {defineComponent} from 'vue';
-import {ElButton, ElDivider, ElInput} from 'element-plus';
+import {ElButton, ElInput} from 'element-plus';
 import AI from '@/ai';
 import {pluginMap} from '@/plugin';
 export default defineComponent({
     name: 'HomeView',
     components: {
         'el-button': ElButton,
-        'el-divider': ElDivider,
         'el-input': ElInput,
     },
 
@@ -40,6 +44,7 @@ export default defineComponent({
             answer: '',
             userInput: '',
             plugins: pluginMap,
+            activeName: '',
         };
     },
 

@@ -19,16 +19,33 @@ class Model {
 
         console.log('必要输入', this.session.inputNames);
 
-        const inputData = await getModelInput(prompt);
+        let currentPrompt = prompt;
+        let fullResponse = '';
 
-        const outputs = await this.session.run(inputData);
-        console.log('outputs', outputs);
+        // 最大生成长度限制，防止无限循环
+        const MAX_LENGTH = 500;
 
-        // @ts-ignore
-        const text = await decodeOutput(outputs);
-        console.log('生成的文本:', text);
+        while (fullResponse.length < MAX_LENGTH) {
 
-        return text;
+            const inputData = await getModelInput(currentPrompt);
+
+            const outputs = await this.session.run(inputData);
+            console.log('outputs', outputs);
+
+            // @ts-expect-error TextGenerationPipeline 允许缺省
+            const nextToken = await decodeOutput(outputs);
+            // 如果生成了结束符或空字符，终止生成
+            if (!nextToken || nextToken === '[EOS]' || nextToken === '</s>') {
+                break;
+            }
+
+            fullResponse += nextToken;
+            // 更新提示，包含之前的上下文
+            currentPrompt = prompt + fullResponse;
+            console.log('当前生成:', fullResponse);
+        }
+
+        return fullResponse;
     }
 }
 
