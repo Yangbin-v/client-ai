@@ -1,5 +1,5 @@
 import * as ort from 'onnxruntime-web';
-import {getModelInput, decodeOutput} from './util';
+import {getModelInput, decodeOutput, tokenizeMessages} from './util';
 
 ort.env.wasm.wasmPaths = '/';  // WASM 文件在 public 目录下
 
@@ -17,17 +17,32 @@ class Model {
             await this.init();
         }
 
-        console.log('必要输入', this.session.inputNames);
-
-        let currentPrompt = prompt;
+        let messages = [
+            {
+                role: 'system',
+                content: 'You are bugmaster, created by kedaya. You are a helpful assistant.'
+            },
+            {
+                role: 'user',
+                content: 'hello, who are you?'
+            },
+            {
+                role: 'assistant',
+                content: 'hello, i am bugmaster, how can i help you?'
+            },
+            {
+                role: 'user',
+                content: prompt
+            }
+        ];
+        let promptFinal = await tokenizeMessages(messages);
         let fullResponse = '';
 
         // 最大生成长度限制，防止无限循环
         const MAX_LENGTH = 500;
 
         while (fullResponse.length < MAX_LENGTH) {
-
-            const inputData = await getModelInput(currentPrompt);
+            const inputData = await getModelInput(promptFinal as string);
 
             const outputs = await this.session.run(inputData);
             console.log('outputs', outputs);
@@ -40,8 +55,10 @@ class Model {
             }
 
             fullResponse += nextToken;
-            // 更新提示，包含之前的上下文
-            currentPrompt = prompt + fullResponse;
+            
+            // 更新消息历史，将当前生成的回复作为 assistant 的消息
+            promptFinal += nextToken;
+
             console.log('当前生成:', fullResponse);
         }
 

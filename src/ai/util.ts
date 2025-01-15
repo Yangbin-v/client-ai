@@ -1,14 +1,14 @@
 import {Tensor} from 'onnxruntime-web';
-import {PreTrainedTokenizer} from '@huggingface/transformers';
+import {PreTrainedTokenizer, AutoTokenizer} from '@huggingface/transformers';
 
 let hasWebGPUFlag: boolean | null = null;
 
 /** 是否支持 WebGPU */
 export const hasWebGPU = async() => {
     if (hasWebGPUFlag === null) {
-        // @ts-ignore
+        // @ts-expect-error 忽略类型检查
         if (navigator.gpu) {
-            // @ts-ignore
+            // @ts-expect-error 忽略类型检查
             const adapter = await navigator.gpu.requestAdapter();
             if (adapter.features.has('shader-f16')) {
                 hasWebGPUFlag = true;
@@ -18,7 +18,7 @@ export const hasWebGPU = async() => {
     return hasWebGPUFlag;
 };
 
-let tokenizerInstance: PreTrainedTokenizer | null = null;
+export let tokenizerInstance: PreTrainedTokenizer | null = null;
 /**
  * 初始化分词器
  */
@@ -39,15 +39,22 @@ async function initTokenizer() {
  * @param text 输入文本
  * @returns 分词后的结果
  */
-async function tokenizer(text: string) {
+export async function tokenizeMessages(messages: Array<{role: string; content: string}>) {
     const tokenizer = await initTokenizer();
-    const tokens = tokenizer.encode(text);
+    const tokens = tokenizer.apply_chat_template(
+        messages,
+        {
+            chat_template: '{% for message in messages %}<|im_start|>{{ message.role }}\n{{ message.content }}<|im_end|>\n{% endfor %}{% if add_generation_prompt %}<|im_start|>assistant\n{% endif %}',
+            tokenize: false,
+            add_generation_prompt: true
+        }
+    );
     console.log('分词结果', tokens);
     return tokens;
 }
 
-export async function getModelInput(prompt: string) {
-    const inputIds = await tokenizer(prompt);
+export async function getModelInput(messages: string) {
+    const inputIds = tokenizerInstance.encode(messages);
     const seqLength = inputIds.length;
 
     // 1. 构造 input_ids
@@ -86,7 +93,7 @@ export async function getModelInput(prompt: string) {
 
     return {
         input_ids: inputTensor,
-        attention_mask: attentionMaskTensor, 
+        attention_mask: attentionMaskTensor,
         position_ids: positionTensor,
         ...past_key_values
     };
@@ -106,13 +113,26 @@ export async function decodeOutput(output: {logits: Tensor}) {
     // 获取最后一个位置的 logits
     const lastLogits = logitsData.slice(-vocabSize);
 
-    // 找到概率最高的 token id
-    let maxProb = -Infinity;
+    // 应用温度
+    const temperature = 0.7; // 可调整的温度参数，越大随机性越强
+    const scaledLogits = lastLogits.map(logit => logit / temperature);
+
+    // 计算 softmax
+    const maxLogit = Math.max(...scaledLogits);
+    const expLogits = scaledLogits.map(logit => Math.exp(logit - maxLogit));
+    const expSum = expLogits.reduce((a, b) => a + b, 0);
+    const probs = expLogits.map(exp => exp / expSum);
+
+    // 使用轮盘赌选择采样
+    const random = Math.random();
+    let cumulativeProb = 0;
     let nextTokenId = 0;
-    for (let i = 0; i < lastLogits.length; i++) {
-        if (lastLogits[i] > maxProb) {
-            maxProb = lastLogits[i];
+
+    for (let i = 0; i < probs.length; i++) {
+        cumulativeProb += probs[i];
+        if (random <= cumulativeProb) {
             nextTokenId = i;
+            break;
         }
     }
 
