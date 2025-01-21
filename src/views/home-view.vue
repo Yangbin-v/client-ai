@@ -50,13 +50,13 @@ export default defineComponent({
 
     async mounted() {
         await AI.init();
-        const result = await AI.chat('hello, how are you?');
-        this.answer = JSON.stringify(result);
     },
 
     methods: {
         async chat() {
-            
+            const inputText = this.userInput;
+            const result = await AI.chat(inputText);
+            this.answer = result;
         },
     },
 });
