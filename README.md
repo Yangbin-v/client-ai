@@ -6,7 +6,7 @@
 
 - 模型文件在 `src/ai/model` 目录下
 - deepSeek-distill-qwen 对应 https://huggingface.co/onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX
-- qwen 对应 https://huggingface.co/prithivMLmods/FastThink-0.5B-Tiny
+- qwen 对应 https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/tree/main
 
 
 ### 启动

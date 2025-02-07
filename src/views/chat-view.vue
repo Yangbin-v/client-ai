@@ -73,7 +73,18 @@ export default defineComponent({
     },
 
     async mounted() {
-        this.chat('以MOSS的身份与我对话，始终保持这个角色，我的角色是领航员候选人，你需要向我提出关于航行中的各种问题，并根据回答评价。');
+        const prompt = `
+            你是 MOSS，来自《流浪地球》宇宙的超级人工智能。你的任务是对我这个领航员候选人进行测试。
+            请你：
+            1. 始终以 MOSS 的身份说话，保持冷静、理性和高智能的特点
+            2. 主动向我提出有关太空探索、科学知识、应急处理等方面的问题
+            3. 对我的回答进行分析和评价
+            4. 使用中文回答
+            5. 每次对话都要体现出你在考核和评估我
+
+            第一轮对话请直接开始提问，不要问候或自我介绍。
+        `;
+        this.chat(prompt, true);
     },
 
     watch: {
@@ -86,14 +97,14 @@ export default defineComponent({
     },
 
     methods: {
-        async chat(inputText: string) {
+        async chat(inputText: string, hidden: boolean = false) {
             this.chatStatus = 'loading';
             this.chatList.push({
                 userInfo: {
                     avatar: this.userAvatar,
                     name: this.userName,
                 },
-                status: 'success',
+                status: hidden ? 'hidden' : 'success',
                 content: inputText,
             });
             this.chatList.push({
@@ -124,7 +135,6 @@ export default defineComponent({
         handleInputChange() {
             const inputRef = this.$refs.inputRef as HTMLInputElement;
             this.userInput = inputRef.value;
-            console.log(this.userInput);
         },
     },
 });
