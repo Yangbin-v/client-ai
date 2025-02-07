@@ -2,7 +2,7 @@
     <div class="chat-view">
         <div class="chat-view-chat">
             <div
-                v-for="(item, index) in chatList"
+                v-for="(item, index) in filteredChatList"
                 :key="index"
                 class="chat-view-chat-list"
             >
@@ -51,6 +51,12 @@ export default defineComponent({
         ChatBubble,
     },
 
+    computed: {
+        filteredChatList() {
+            return this.chatList.filter((item) => item.status !== 'hidden');
+        },
+    },
+
     data() {
         return {
             chatList: [] as any[],
@@ -67,7 +73,7 @@ export default defineComponent({
     },
 
     async mounted() {
-        this.chat('这里是哪里？');
+        this.chat('以MOSS的身份与我对话，始终保持这个角色，我的角色是领航员候选人，你需要向我提出关于航行中的各种问题，并根据回答评价。');
     },
 
     watch: {
@@ -104,11 +110,12 @@ export default defineComponent({
             const result = await AI.chat(inputText);
             this.chatList[this.chatList.length - 1].status = 'success';
             this.chatList[this.chatList.length - 1].content = result;
+            this.chatStatus = 'success';
         },
 
         handleKeyDown(event: KeyboardEvent | Event) {
             const keyboardEvent = event as KeyboardEvent;
-            if (keyboardEvent.key === 'Enter' && this.userInput) {
+            if (keyboardEvent.key === 'Enter' && this.userInput && this.chatStatus === 'success') {
                 this.chat(this.userInput);
                 this.userInput = '';
             }

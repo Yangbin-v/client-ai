@@ -2,30 +2,17 @@
 
 端侧AI的实践
 
-## 开发命令
+### 模型文件
 
-### 配置 env
-安装说明填写 env 配置
-```sh
-cp .env.example .env
-```
+- 模型文件在 `src/ai/model` 目录下
+- deepSeek-distill-qwen 对应 https://huggingface.co/onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX
+- qwen 对应 https://huggingface.co/prithivMLmods/FastThink-0.5B-Tiny
 
-```env
-# HuggingFace Access Token，用来下载模型
-HF_AUTH_TOKEN=xxxxxxxxxxxx
-
-# Model Size，模型大小，0.5和1.5B的模型
-MODEL_SIZE=0.5
-
-# 下载模型需要代理，如果没有VPN，是否使用镜像
-# USE_MIRROR=1
-
-```
 
 ### 启动
 
 ```sh
-npm run bootstrap
+npm install
 npm run dev
 ```
 

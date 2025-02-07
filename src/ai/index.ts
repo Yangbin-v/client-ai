@@ -1,8 +1,12 @@
-import {pipeline, TextGenerationPipeline, env, TextStreamer} from '@huggingface/transformers';
+import {pipeline, TextGenerationPipeline, env} from '@huggingface/transformers';
 
 // Specify a custom location for models (defaults to '/models/').
-env.remoteHost = `${window.location.origin}`;
-env.remotePathTemplate = '{model}/';
+// env.remoteHost = `${window.location.origin}`;
+// env.remotePathTemplate = '{model}/';
+
+const messages = [
+    {role: 'system', content: 'You are a helpful assistant.'},
+];
 
 /** 模型 */
 class Model {
@@ -10,13 +14,9 @@ class Model {
     private generator: TextGenerationPipeline;
 
     async init() {
-        this.generator = await pipeline('text-generation', 'model/deepSeek-distill-qwen', {
+        this.generator = await pipeline('text-generation', 'prithivMLmods/FastThink-0.5B-Tiny', {
             dtype: 'q4f16'
         });
-
-        // this.generator = await pipeline('text-generation', 'onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX', {
-        //     dtype: 'q4f16'
-        // });
     }
 
     async chat(prompt: string) {
@@ -24,30 +24,31 @@ class Model {
             await this.init();
         }
 
+        messages.push({role: 'user', content: prompt});
+
         // 模型执行会严重占用资源，会导致页面渲染滞后
         // 所以需要等待页面渲染完成
         await new Promise((resolve) => setTimeout(resolve, 0));
 
-        const messages = [
-            {role: 'user', content:  'Solve the equation: x^2 - 3x + 2 = 0'}
-        ];
-
-        const streamer = new TextStreamer(this.generator.tokenizer, {
-            skip_prompt: true,
-            // callback_function: (text) => { }, // Optional callback function
+        const text = this.generator.tokenizer.apply_chat_template(messages, {
+            tokenize: false,
+            add_generation_prompt: true,
         });
 
-        console.log(streamer);
+        console.log(text);
 
         // Generate text
-        const output = await this.generator(messages, {
-            max_new_tokens: 8,
+        // @ts-expect-error 忽略类型检查
+        const output = await this.generator(text, {
+            max_new_tokens: 256,
             do_sample: false,
-            streamer,
-            use_cache: false
+            return_full_text: false
         });
 
         console.log(output);
+
+        // @ts-expect-error 忽略类型检查
+        messages.push({role: 'assistant', content: output[0].generated_text});
 
         // @ts-expect-error 忽略类型检查
         return output[0].generated_text;
