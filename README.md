@@ -1,4 +1,4 @@
-# oh-my-clone
+# client-ai
 
 端侧AI的实践
 
