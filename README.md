@@ -1,6 +1,6 @@
 # client-ai
 
-端侧AI的实践
+在浏览器运行模型的demo
 
 ### 模型文件
 
@@ -8,9 +8,11 @@
 - deepSeek-distill-qwen 对应 https://huggingface.co/onnx-community/DeepSeek-R1-Distill-Qwen-1.5B-ONNX
 - qwen 对应 https://huggingface.co/onnx-community/Qwen2.5-0.5B-Instruct/tree/main
 
+去上面的链接下载对应的模型文件，然后放到 `src/ai/model` 目录下
 
 ### 启动
 
+运行下面2个命令就可以启动demo
 ```sh
 npm install
 npm run dev
