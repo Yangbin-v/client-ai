@@ -7,9 +7,6 @@ env.remoteHost = `${window.location.origin}`;
 env.remotePathTemplate = '{model}/';
 
 let systemPromptAPI = `你是一个智能助手，可以调用以下函数来完成用户请求。
-请在回答时判断是否需要调用下列可用函数列表中的函数，并返回你要调用的函数名称及参数，格式必须严格按照下面的 JSON 模板输出，不要添加其他说明文字。
-如果下列可用函数列表中没有需要调用的函数，返回不支持该能力。
-
 可用函数：
 1. getWeather
    - 描述：获取指定地点的天气信息
@@ -28,15 +25,17 @@ let systemPromptAPI = `你是一个智能助手，可以调用以下函数来完
      - restaurant (string)：餐厅名称
      - food (string)：菜品名称
 
+在回答时判断是否需要调用可用函数列表中的函数，并返回你要调用的函数名称及参数，格式必须严格按照下面的 JSON 模板输出，不要添加其他说明文字。
 输出格式（严格遵循）：
 {
-  "function": "函数名称",
+  "function": "getWeather",
   "parameters": {
-    "参数名": "参数值",
+    "location": "北京",
     ...
   }
 }
 
+如果可用函数列表中没有需要调用的函数，返回不支持该能力。
 现在，请根据用户请求返回你要调用的函数和参数：`;
 
 let systemPromptDefault = `你是一个智能助手。`;
@@ -54,13 +53,17 @@ class Model {
         const canUseWebGPU = await hasWebGPU();
         this.generator = await pipeline('text-generation', 'model/qwen', {
             dtype: 'q4f16',
-            device: canUseWebGPU ? 'webgpu' : 'auto'
+            // device: canUseWebGPU ? 'webgpu' : 'auto'
         });
     }
 
     async chat(prompt: string, role: 'user' | 'system' = 'user'): Promise<any> {
         if (!this.generator) {
             await this.init();
+        }
+
+        if (role === 'user') {
+            console.log(`用户输入: ${prompt}`);
         }
 
         messages.push({role, content: prompt});
@@ -87,6 +90,8 @@ class Model {
 
         // @ts-expect-error 忽略类型检查
         const modelOuput = output[0].generated_text;
+
+        console.log(`模型输出: ${modelOuput}`);
 
         let functionInfo = null;
         try {

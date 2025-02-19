@@ -61,6 +61,7 @@ export default defineComponent({
 
 .chat-bubble-content {
     margin-left: 8px;
+    flex: 1;
 }
 
 .chat-bubble-info-name {
